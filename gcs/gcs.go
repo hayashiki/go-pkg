@@ -12,7 +12,7 @@ import (
 
 // Storage Storage service interface
 //go:generate mockgen -source gcs.go -destination mock_gcs/mock_gcs.go
-type Storage interface {
+type Client interface {
 	Put(ctx context.Context, objName string, data []byte) error
 	Get(ctx context.Context, objName string) ([]byte, error)
 	List(ctx context.Context, filePrefix string) ([]string, error)
@@ -77,7 +77,7 @@ func (c *client) MakeObjectPublic(ctx context.Context, objName string) error {
 
 }
 
-func NewGCSClient(bucket string) (Storage, error) {
+func NewGCSClient(bucket string) (Client, error) {
 	ctx := context.Background()
 
 	gcsClient, err := storage.NewClient(ctx)
