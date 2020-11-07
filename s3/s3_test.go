@@ -16,7 +16,7 @@ func TestACL_String(t *testing.T) {
 	}{
 		{
 			name: "success",
-			a: Public,
+			a:    Public,
 			want: "public-read",
 		},
 	}
@@ -72,9 +72,9 @@ func TestInteractor_Download(t *testing.T) {
 			{
 				"error",
 				fields{s3mockErr,
-				opt.Bucket,
-				opt.URL,
-				opt.ForcePathStyle},
+					opt.Bucket,
+					opt.URL,
+					opt.ForcePathStyle},
 				args{"test.png"},
 				nil,
 				true,
