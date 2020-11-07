@@ -21,14 +21,14 @@ func (a ACL) String() string {
 }
 
 type Options struct {
-	Key string
-	Secret string
-	Endpoint string
-	Region string
-	Bucket string
-	URL string
+	Key            string
+	Secret         string
+	Endpoint       string
+	Region         string
+	Bucket         string
+	URL            string
 	ForcePathStyle bool
-	DisableSSL bool
+	DisableSSL     bool
 }
 
 func New(c Client, opt Options) *Interactor {
@@ -59,7 +59,7 @@ type Client interface {
 }
 
 type Interactor struct {
-	client Client
+	client         Client
 	bucket         string
 	url            string
 	forcePathStyle bool
@@ -84,8 +84,8 @@ func (i *Interactor) Upload(file io.ReadSeeker, filepath string, acl ACL, conten
 
 func (i *Interactor) Download(filepath string) (io.ReadCloser, *string, error) {
 	input := &s3.GetObjectInput{
-		Bucket:                     aws.String(i.bucket),
-		Key:                        aws.String(filepath),
+		Bucket: aws.String(i.bucket),
+		Key:    aws.String(filepath),
 	}
 
 	result, err := i.client.GetObject(input)
@@ -98,8 +98,8 @@ func (i *Interactor) Download(filepath string) (io.ReadCloser, *string, error) {
 
 func (i *Interactor) Remove(filepath string) error {
 	input := &s3.DeleteObjectInput{
-		Bucket:                    aws.String(i.bucket),
-		Key:                       aws.String(filepath),
+		Bucket: aws.String(i.bucket),
+		Key:    aws.String(filepath),
 	}
 
 	_, err := i.client.DeleteObject(input)

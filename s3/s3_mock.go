@@ -7,8 +7,8 @@ import (
 )
 
 type S3mock struct {
-	Error error
-	Filepath string
+	Error       error
+	Filepath    string
 	ContentType string
 }
 
