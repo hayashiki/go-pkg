@@ -38,6 +38,9 @@ type (
 
 	AuthedUser struct {
 		ID string `json:"id,omitempty"`
+		Scope string `json:"scope,omitempty"`
+		AccessToken string `json:"access_token,omitempty"`
+		TokenType string `json:"token_type,omitempty"`
 	}
 
 	TeamInfo struct {
