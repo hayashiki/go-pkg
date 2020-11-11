@@ -22,6 +22,7 @@ type (
 		redirectURL string
 		baseURL     string
 		scopes      []string
+		userScopes  []string
 	}
 
 	AuthorizeResponse struct {
@@ -41,7 +42,12 @@ func (c *auth) accessURL() (string, error) {
 	v.Add("client_id", c.clientID)
 	v.Add("redirect_uri", c.redirectURL)
 	v.Add("state", c.state)
-	v.Add("scope", strings.Join(c.scopes, ","))
+	if len(c.scopes) != 0 {
+		v.Add("scope", strings.Join(c.scopes, ","))
+	}
+	if len(c.userScopes) != 0 {
+		v.Add("user_scope", strings.Join(c.userScopes, ","))
+	}
 	u.RawQuery = v.Encode()
 
 	return u.String(), nil
@@ -74,6 +80,16 @@ func NewAuth(clientID, redirectURL, state string, scopes []string) Auth {
 		redirectURL: redirectURL,
 		baseURL:     SlackDefaultAPIURL,
 		scopes:      scopes,
+		state:       state,
+	}
+}
+
+func NewUserAuth(clientID, redirectURL, state string, userScopes []string) Auth {
+	return &auth{
+		clientID:    clientID,
+		redirectURL: redirectURL,
+		baseURL:     SlackDefaultAPIURL,
+		userScopes:  userScopes,
 		state:       state,
 	}
 }

@@ -126,13 +126,7 @@ func Test_auth_Redirect(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &auth{
-				state:       tt.fields.State,
-				clientID:    tt.fields.clientID,
-				redirectURL: tt.fields.redirectURL,
-				baseURL:     tt.fields.baseURL,
-				scopes:      tt.fields.scopes,
-			}
+			c := NewAuth(tt.fields.clientID, tt.fields.redirectURL, tt.fields.State, tt.fields.scopes)
 			if err := c.Redirect(tt.args.w, tt.args.r); (err != nil) != tt.wantErr {
 				t.Errorf("Redirect() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -144,6 +138,62 @@ func Test_auth_Redirect(t *testing.T) {
 			}
 
 			expectURL := "https://slack.com/oauth/v2/authorize?client_id=1&redirect_uri=http%3A%2F%2Flocalhost%2Fcallback&scope=chat%3Awrite%2Cusers%3Aread&state=hoge"
+			if actualURL := tt.args.w.Header().Get("location"); actualURL != expectURL {
+				t.Errorf("handler returned wrong status code: got %v want %v",
+					actualURL, expectURL)
+			}
+		})
+	}
+}
+
+func Test_auth_UserRedirect(t *testing.T) {
+	type fields struct {
+		State       string
+		clientID    string
+		redirectURL string
+		baseURL     string
+		userScopes  []string
+	}
+	type args struct {
+		w http.ResponseWriter
+		r *http.Request
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "noError",
+			fields: fields{
+				State:       "hoge",
+				clientID:    "1",
+				redirectURL: "http://localhost/callback",
+				baseURL:     "https://slack.com",
+				userScopes:  []string{"user.identify"},
+			},
+			args: args{
+				w: httptest.NewRecorder(),
+				r: httptest.NewRequest(http.MethodGet, "/", nil),
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewUserAuth(tt.fields.clientID, tt.fields.redirectURL, tt.fields.State, tt.fields.userScopes)
+			if err := c.Redirect(tt.args.w, tt.args.r); (err != nil) != tt.wantErr {
+				t.Errorf("Redirect() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			w := tt.args.w.(*httptest.ResponseRecorder)
+			if status := w.Code; status != http.StatusTemporaryRedirect {
+				t.Errorf("handler returned wrong status code: got %v want %v",
+					status, http.StatusTemporaryRedirect)
+			}
+
+			expectURL := "https://slack.com/oauth/v2/authorize?client_id=1&redirect_uri=http%3A%2F%2Flocalhost%2Fcallback&state=hoge&user_scope=user.identify"
 			if actualURL := tt.args.w.Header().Get("location"); actualURL != expectURL {
 				t.Errorf("handler returned wrong status code: got %v want %v",
 					actualURL, expectURL)
